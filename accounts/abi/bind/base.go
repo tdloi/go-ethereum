@@ -254,11 +254,8 @@ func (c *BoundContract) transact(opts *TransactOpts, contract *common.Address, i
 	if opts.GasPrice != nil && (opts.GasFeeCap != nil || opts.GasTipCap != nil) {
 		return nil, errors.New("both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified")
 	}
-	head, err := c.transactor.HeaderByNumber(ensureContext(opts.Context), nil)
-	if err != nil {
-		return nil, err
-	}
-	if head.BaseFee != nil && opts.GasPrice == nil {
+
+	if opts.GasPrice == nil {
 		if opts.GasTipCap == nil {
 			tip, err := c.transactor.SuggestGasTipCap(ensureContext(opts.Context))
 			if err != nil {
@@ -266,7 +263,12 @@ func (c *BoundContract) transact(opts *TransactOpts, contract *common.Address, i
 			}
 			opts.GasTipCap = tip
 		}
-		if opts.GasFeeCap == nil {
+
+		head, err := c.transactor.HeaderByNumber(ensureContext(opts.Context), nil)
+		if err != nil {
+			return nil, err
+		}
+		if head.BaseFee != nil && opts.GasFeeCap == nil {
 			gasFeeCap := new(big.Int).Add(
 				opts.GasTipCap,
 				new(big.Int).Mul(head.BaseFee, big.NewInt(2)),
