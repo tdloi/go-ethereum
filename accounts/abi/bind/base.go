@@ -293,13 +293,13 @@ func (c *BoundContract) transact(opts *TransactOpts, contract *common.Address, i
 	gasLimit := opts.GasLimit
 	if gasLimit == 0 {
 		// Gas estimation cannot succeed without code for method invocations
-		if contract != nil {
-			if code, err := c.transactor.PendingCodeAt(ensureContext(opts.Context), c.address); err != nil {
-				return nil, err
-			} else if len(code) == 0 {
-				return nil, ErrNoCode
-			}
-		}
+		// if contract != nil {
+		// 	if code, err := c.transactor.PendingCodeAt(ensureContext(opts.Context), c.address); err != nil {
+		// 		return nil, err
+		// 	} else if len(code) == 0 {
+		// 		return nil, ErrNoCode
+		// 	}
+		// }
 		// If the contract surely has code (or code is not needed), estimate the transaction
 		msg := ethereum.CallMsg{From: opts.From, To: contract, GasPrice: opts.GasPrice, GasTipCap: opts.GasTipCap, GasFeeCap: opts.GasFeeCap, Value: value, Data: input}
 		gasLimit, err = c.transactor.EstimateGas(ensureContext(opts.Context), msg)
